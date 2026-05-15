@@ -52,6 +52,7 @@ function authContext(user: User | null = mockUser) {
 function makeEntry(overrides: Partial<ShelfEntry> = {}): ShelfEntry {
   return {
     id: 1,
+    book_id: 1,
     shelf: 'currently_reading',
     added_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
