@@ -1,0 +1,63 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "targetDefaults": {
+    "dev": {
+      "cache": false
+    },
+    "build": {
+      "cache": true
+    },
+    "generate": {
+      "cache": false
+    }
+  },
+  "projects": {
+    "api": {
+      "root": "apps/api",
+      "targets": {
+        "dev": {
+          "command": "uv run manage.py runserver"
+        }
+      }
+    },
+    "web": {
+      "root": "apps/web",
+      "targets": {
+        "dev": {
+          "command": "npm run dev"
+        },
+        "build": {
+          "command": "npm run build"
+        }
+      }
+    },
+    "admin": {
+      "root": "apps/admin",
+      "targets": {
+        "dev": {
+          "command": "npm run dev"
+        },
+        "build": {
+          "command": "npm run build"
+        }
+      }
+    },
+    "mobile": {
+      "root": "apps/mobile",
+      "targets": {
+        "dev": {
+          "command": "npm run start"
+        }
+      }
+    },
+    "api-types": {
+      "root": "packages/api-types",
+      "targets": {
+        "generate": {
+          "command": "npm run generate"
+        }
+      }
+    }
+  }
+}

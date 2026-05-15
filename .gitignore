@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Nx specific
+.nx/cache
+.nx/workspace-data
+.nx/installation
+
+# Compiled output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Python virtual environments
+.venv/
+
+# Django development database (never commit the live DB)
+*.sqlite3
+
+# uv / pip build artefacts
+*.egg-info/
+.eggs/

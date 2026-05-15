@@ -1,0 +1,28 @@
+{
+  "name": "kids-reading-tracker",
+  "version": "0.0.0",
+  "description": "Monorepository for the kids-reading-tracker application",
+  "keywords": [
+    "monorepo"
+  ],
+  "license": "MIT",
+  "author": "Jim Barnes",
+  "workspaces": [
+    "apps/web",
+    "apps/admin",
+    "apps/mobile",
+    "packages/api-types"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:admin\"",
+    "dev:api": "cd apps/api && uv run manage.py runserver",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:mobile": "npm run start --workspace=apps/mobile",
+    "generate:types": "npm run generate --workspace=packages/api-types"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "nx": "^22.7.1"
+  }
+}

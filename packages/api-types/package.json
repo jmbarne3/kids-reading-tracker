@@ -1,0 +1,11 @@
+{
+  "name": "@kids-reading-tracker/api-types",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "generate": "openapi-typescript http://localhost:8000/api/schema/ -o src/generated.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.8.0"
+  }
+}
