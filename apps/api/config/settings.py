@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # Local
     'core',
     'catalog',
+    'library',
 ]
 
 MIDDLEWARE = [
