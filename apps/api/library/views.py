@@ -1,5 +1,10 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from catalog.openlibrary import OpenLibraryError, OpenLibraryNotFoundError
+from catalog.services import get_or_import_book
 
 from .models import ReadingProgress, ReadingSession, ShelfEntry
 from .serializers import (
@@ -158,3 +163,66 @@ class ReadingProgressDetailView(generics.DestroyAPIView):
     def get_queryset(self):
         # Ensure users can only delete their own progress entries.
         return ReadingProgress.objects.filter(session__user=self.request.user)
+
+
+# ---------------------------------------------------------------------------
+# Add book by ISBN
+# ---------------------------------------------------------------------------
+
+class AddBookByISBNView(APIView):
+    """
+    POST /api/library/shelf/by-isbn/
+
+    Body: { isbn: str, shelf: str }
+
+    Looks up the book by ISBN (importing from Open Library if needed) and
+    adds it to the authenticated user's shelf.  If the book is already on
+    the user's shelf, it is moved to the requested shelf.
+
+    Response: { shelf_entry: {...}, imported: bool }
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        isbn = (request.data.get('isbn') or '').strip()
+        shelf = (request.data.get('shelf') or '').strip()
+
+        errors = {}
+        if not isbn:
+            errors['isbn'] = 'This field is required.'
+        valid_shelves = [c[0] for c in ShelfEntry.SHELF_CHOICES]
+        if not shelf:
+            errors['shelf'] = 'This field is required.'
+        elif shelf not in valid_shelves:
+            errors['shelf'] = f'Must be one of: {", ".join(valid_shelves)}.'
+        if errors:
+            raise ValidationError(errors)
+
+        try:
+            book, imported = get_or_import_book(isbn)
+        except OpenLibraryNotFoundError:
+            raise NotFound(detail=f'No book found for ISBN {isbn!r} on Open Library.')
+        except OpenLibraryError as exc:
+            return Response(
+                {'detail': f'Could not reach Open Library: {exc}'},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        entry, created = ShelfEntry.objects.get_or_create(
+            user=request.user,
+            book=book,
+            defaults={'shelf': shelf},
+        )
+        if not created and entry.shelf != shelf:
+            entry.shelf = shelf
+            entry.save(update_fields=['shelf', 'updated_at'])
+
+        serializer = ShelfEntrySerializer(
+            entry,
+            context={'request': request},
+        )
+        return Response(
+            {'shelf_entry': serializer.data, 'imported': imported},
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )

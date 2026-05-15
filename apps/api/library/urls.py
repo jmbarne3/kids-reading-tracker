@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # Shelf
     path('shelf/', views.ShelfEntryListCreateView.as_view(), name='shelf-list'),
+    path('shelf/by-isbn/', views.AddBookByISBNView.as_view(), name='shelf-add-by-isbn'),
     path('shelf/<int:pk>/', views.ShelfEntryDetailView.as_view(), name='shelf-detail'),
 
     # Reading sessions

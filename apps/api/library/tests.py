@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import MagicMock, patch
 
 from django.db import IntegrityError
 from django.test import TestCase
@@ -7,6 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from catalog.models import Book
+from catalog.openlibrary import OLAuthor, OLBook, OpenLibraryError, OpenLibraryNotFoundError
 from core.models import User
 
 from .models import ReadingProgress, ReadingSession, ShelfEntry
@@ -371,3 +373,140 @@ class ReadingProgressAPITest(APITestCase):
         self.client.force_authenticate(user=None)
         response = self.client.get(self.progress_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+# ---------------------------------------------------------------------------
+# Add book by ISBN API tests
+# ---------------------------------------------------------------------------
+
+class AddBookByISBNAPITest(APITestCase):
+    url = '/api/library/shelf/by-isbn/'
+
+    def setUp(self):
+        self.user = make_user()
+        self.client.force_authenticate(self.user)
+
+    # -- Validation ----------------------------------------------------------
+
+    def test_missing_isbn_returns_400(self):
+        response = self.client.post(self.url, {'shelf': 'want_to_read'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('isbn', response.data)
+
+    def test_missing_shelf_returns_400(self):
+        response = self.client.post(self.url, {'isbn': '9780000000000'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('shelf', response.data)
+
+    def test_empty_body_returns_400_for_both_fields(self):
+        response = self.client.post(self.url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('isbn', response.data)
+        self.assertIn('shelf', response.data)
+
+    def test_invalid_shelf_value_returns_400(self):
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'nonsense'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('shelf', response.data)
+
+    def test_unauthenticated_returns_401(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'want_to_read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # -- OL error handling ---------------------------------------------------
+
+    @patch('library.views.get_or_import_book')
+    def test_ol_not_found_returns_404(self, mock_import):
+        mock_import.side_effect = OpenLibraryNotFoundError('Not found')
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'want_to_read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @patch('library.views.get_or_import_book')
+    def test_ol_network_error_returns_502(self, mock_import):
+        mock_import.side_effect = OpenLibraryError('Timeout')
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'want_to_read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+
+    # -- Happy path ----------------------------------------------------------
+
+    @patch('library.views.get_or_import_book')
+    def test_new_book_imported_and_shelved_returns_201(self, mock_import):
+        book = make_book(title='Imported Book')
+        mock_import.return_value = (book, True)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'want_to_read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data['imported'])
+        self.assertEqual(response.data['shelf_entry']['shelf'], 'want_to_read')
+        self.assertEqual(response.data['shelf_entry']['book']['title'], 'Imported Book')
+        self.assertTrue(ShelfEntry.objects.filter(user=self.user, book=book).exists())
+
+    @patch('library.views.get_or_import_book')
+    def test_existing_book_not_yet_shelved_returns_201(self, mock_import):
+        book = make_book(title='Existing Book')
+        mock_import.return_value = (book, False)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertFalse(response.data['imported'])
+        self.assertEqual(response.data['shelf_entry']['shelf'], 'read')
+
+    @patch('library.views.get_or_import_book')
+    def test_book_already_on_same_shelf_returns_200(self, mock_import):
+        book = make_book(title='Already Shelved')
+        ShelfEntry.objects.create(user=self.user, book=book, shelf='currently_reading')
+        mock_import.return_value = (book, False)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'currently_reading'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['shelf_entry']['shelf'], 'currently_reading')
+        # Still only one ShelfEntry
+        self.assertEqual(ShelfEntry.objects.filter(user=self.user, book=book).count(), 1)
+
+    @patch('library.views.get_or_import_book')
+    def test_book_on_different_shelf_is_moved(self, mock_import):
+        book = make_book(title='Moveable Book')
+        ShelfEntry.objects.create(user=self.user, book=book, shelf='want_to_read')
+        mock_import.return_value = (book, False)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'currently_reading'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['shelf_entry']['shelf'], 'currently_reading')
+        entry = ShelfEntry.objects.get(user=self.user, book=book)
+        self.assertEqual(entry.shelf, 'currently_reading')
+
+    @patch('library.views.get_or_import_book')
+    def test_isbn_with_dashes_passed_through_to_service(self, mock_import):
+        book = make_book(title='Dashed ISBN Book')
+        mock_import.return_value = (book, True)
+        response = self.client.post(
+            self.url, {'isbn': '978-0-000-00000-0', 'shelf': 'read'}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # The view strips whitespace but leaves dashes for the service to normalise.
+        mock_import.assert_called_once_with('978-0-000-00000-0')
+
+    @patch('library.views.get_or_import_book')
+    def test_response_includes_book_details(self, mock_import):
+        book = make_book(title='Detail Book', page_count=150)
+        mock_import.return_value = (book, True)
+        response = self.client.post(
+            self.url, {'isbn': '9780000000000', 'shelf': 'read'}, format='json'
+        )
+        entry_data = response.data['shelf_entry']
+        self.assertIn('book', entry_data)
+        self.assertEqual(entry_data['book']['title'], 'Detail Book')
+        self.assertEqual(entry_data['book']['page_count'], 150)
