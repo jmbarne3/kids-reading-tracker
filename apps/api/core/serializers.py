@@ -91,6 +91,19 @@ class ChildProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class AuthTokenResponseSerializer(serializers.Serializer):
+    """Response body returned by login, register, and OAuth endpoints."""
+    user = UserSerializer()
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
+class TokenRefreshResponseSerializer(serializers.Serializer):
+    """Response body returned by the token-refresh endpoint."""
+    access = serializers.CharField()
+    refresh = serializers.CharField(required=False)
+
+
 class GoogleAuthSerializer(serializers.Serializer):
     id_token = serializers.CharField()
 

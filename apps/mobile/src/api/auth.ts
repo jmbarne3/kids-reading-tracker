@@ -1,13 +1,7 @@
+import type { User } from '@kids-reading-tracker/api-types';
 import { apiFetch, clearTokens, handleApiError, storeTokens } from './client';
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: 'parent' | 'child';
-}
+export type { User };
 
 export async function login(email: string, password: string): Promise<User> {
   const res = await apiFetch('/api/auth/login/', {

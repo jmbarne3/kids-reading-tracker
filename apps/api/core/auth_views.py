@@ -2,6 +2,7 @@ import logging
 
 import requests as http_requests
 from django.conf import settings
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -13,11 +14,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import ChildProfile, SocialAccount, User
 from .serializers import (
     AppleAuthSerializer,
+    AuthTokenResponseSerializer,
     ChildProfileSerializer,
     CreateChildAccountSerializer,
     GoogleAuthSerializer,
     LoginSerializer,
     RegisterSerializer,
+    TokenRefreshResponseSerializer,
     UserSerializer,
 )
 
@@ -114,6 +117,7 @@ def _find_or_create_social_user(
 # Auth views
 # ---------------------------------------------------------------------------
 
+@extend_schema(request=RegisterSerializer, responses={201: AuthTokenResponseSerializer})
 class RegisterView(APIView):
     """POST /api/auth/register/ — create a parent account with email+password."""
     permission_classes = [permissions.AllowAny]
@@ -131,6 +135,7 @@ class RegisterView(APIView):
         return response
 
 
+@extend_schema(request=LoginSerializer, responses={200: AuthTokenResponseSerializer})
 class LoginView(APIView):
     """POST /api/auth/login/ — authenticate with email+password, receive JWT."""
     permission_classes = [permissions.AllowAny]
@@ -147,6 +152,7 @@ class LoginView(APIView):
         return response
 
 
+@extend_schema(responses={200: None})
 class LogoutView(APIView):
     """POST /api/auth/logout/ — blacklist the refresh token and clear cookies."""
     permission_classes = [permissions.IsAuthenticated]
@@ -168,6 +174,10 @@ class LogoutView(APIView):
         return response
 
 
+@extend_schema(
+    request=TokenRefreshResponseSerializer,
+    responses={200: TokenRefreshResponseSerializer},
+)
 class TokenRefreshView(APIView):
     """
     POST /api/auth/token/refresh/
@@ -200,6 +210,7 @@ class TokenRefreshView(APIView):
         return response
 
 
+@extend_schema(request=GoogleAuthSerializer, responses={200: AuthTokenResponseSerializer})
 class GoogleAuthView(APIView):
     """
     POST /api/auth/google/
@@ -251,6 +262,7 @@ class GoogleAuthView(APIView):
         return response
 
 
+@extend_schema(request=AppleAuthSerializer, responses={200: AuthTokenResponseSerializer})
 class AppleAuthView(APIView):
     """
     POST /api/auth/apple/
@@ -329,6 +341,7 @@ class AppleAuthView(APIView):
         return response
 
 
+@extend_schema(responses={200: UserSerializer})
 class MeView(APIView):
     """GET /api/auth/me/ — return the authenticated user's profile."""
     permission_classes = [permissions.IsAuthenticated]

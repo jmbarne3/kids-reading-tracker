@@ -89,3 +89,15 @@ class ReadingSessionSerializer(serializers.ModelSerializer):
     def create(self, validated_data: dict) -> ReadingSession:
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+
+
+class AddByISBNRequestSerializer(serializers.Serializer):
+    isbn = serializers.CharField(help_text='ISBN-10 or ISBN-13.')
+    shelf = serializers.ChoiceField(choices=ShelfEntry.SHELF_CHOICES)
+
+
+class AddByISBNResponseSerializer(serializers.Serializer):
+    shelf_entry = ShelfEntrySerializer()
+    imported = serializers.BooleanField(
+        help_text='True if the book was newly imported from Open Library.',
+    )

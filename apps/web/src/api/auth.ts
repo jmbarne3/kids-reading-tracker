@@ -1,15 +1,8 @@
-const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000';
+import type { User } from '@kids-reading-tracker/api-types';
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: 'parent' | 'child';
-  date_of_birth: string | null;
-  avatar_url: string;
-}
+export type { User };
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000';
 
 export interface RegisterData {
   email: string;

@@ -1,37 +1,9 @@
+import type { ShelfType, BookBrief, ShelfEntry } from '@kids-reading-tracker/api-types';
+import { SHELF_LABELS, SHELF_ORDER } from '@kids-reading-tracker/api-types';
 import { apiFetch, handleApiError } from './client';
 
-export type ShelfType = 'currently_reading' | 'want_to_read' | 'read' | 'did_not_finish';
-
-export const SHELF_LABELS: Record<ShelfType, string> = {
-  currently_reading: 'Currently Reading',
-  want_to_read: 'Want to Read',
-  read: 'Read',
-  did_not_finish: 'Did Not Finish',
-};
-
-export const SHELF_ORDER: ShelfType[] = [
-  'currently_reading',
-  'want_to_read',
-  'read',
-  'did_not_finish',
-];
-
-export interface BookBrief {
-  id: number;
-  title: string;
-  author_names: string[];
-  isbn_13: string;
-  cover_image_url: string;
-  page_count: number | null;
-}
-
-export interface ShelfEntry {
-  id: number;
-  book: BookBrief;
-  shelf: ShelfType;
-  added_at: string;
-  updated_at: string;
-}
+export type { ShelfType, BookBrief, ShelfEntry };
+export { SHELF_LABELS, SHELF_ORDER };
 
 export async function getShelf(shelf?: ShelfType): Promise<ShelfEntry[]> {
   const path = shelf

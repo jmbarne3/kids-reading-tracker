@@ -1,30 +1,10 @@
+import type { ShelfType, BookBrief, ShelfEntry } from '@kids-reading-tracker/api-types';
+import { SHELF_LABELS, SHELF_ORDER } from '@kids-reading-tracker/api-types';
+
+export type { ShelfType, BookBrief, ShelfEntry };
+export { SHELF_LABELS, SHELF_ORDER };
+
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000';
-
-export type ShelfType = 'currently_reading' | 'want_to_read' | 'read' | 'did_not_finish';
-
-export const SHELF_LABELS: Record<ShelfType, string> = {
-  currently_reading: 'Currently Reading',
-  want_to_read: 'Want to Read',
-  read: 'Read',
-  did_not_finish: 'Did Not Finish',
-};
-
-export interface BookBrief {
-  id: number;
-  title: string;
-  author_names: string[];
-  isbn_13: string;
-  cover_image_url: string;
-  page_count: number | null;
-}
-
-export interface ShelfEntry {
-  id: number;
-  book: BookBrief;
-  shelf: ShelfType;
-  added_at: string;
-  updated_at: string;
-}
 
 async function handleError(res: Response): Promise<never> {
   const body = await res.json().catch(() => ({})) as Record<string, unknown>;

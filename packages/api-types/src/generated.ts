@@ -227,10 +227,239 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/library/progress/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description DELETE /api/library/progress/{id}/
+         *            — remove an incorrect or duplicate progress entry.
+         */
+        delete: operations["library_progress_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET  /api/library/sessions/        — list the user's reading sessions.
+         *     POST /api/library/sessions/        — start a new reading session for a book.
+         *
+         *     Filter by book: GET /api/library/sessions/?book=42
+         */
+        get: operations["library_sessions_list"];
+        put?: never;
+        /**
+         * @description GET  /api/library/sessions/        — list the user's reading sessions.
+         *     POST /api/library/sessions/        — start a new reading session for a book.
+         *
+         *     Filter by book: GET /api/library/sessions/?book=42
+         */
+        post: operations["library_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET    /api/library/sessions/{id}/ — retrieve a reading session.
+         *     PATCH  /api/library/sessions/{id}/ — update (e.g. set finished_at or notes).
+         *     DELETE /api/library/sessions/{id}/ — delete a session and all its progress.
+         */
+        get: operations["library_sessions_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description GET    /api/library/sessions/{id}/ — retrieve a reading session.
+         *     PATCH  /api/library/sessions/{id}/ — update (e.g. set finished_at or notes).
+         *     DELETE /api/library/sessions/{id}/ — delete a session and all its progress.
+         */
+        delete: operations["library_sessions_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description GET    /api/library/sessions/{id}/ — retrieve a reading session.
+         *     PATCH  /api/library/sessions/{id}/ — update (e.g. set finished_at or notes).
+         *     DELETE /api/library/sessions/{id}/ — delete a session and all its progress.
+         */
+        patch: operations["library_sessions_partial_update"];
+        trace?: never;
+    };
+    "/api/library/sessions/{session_pk}/progress/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET  /api/library/sessions/{session_id}/progress/
+         *          — list all progress entries for a session, most recent first.
+         *
+         *     POST /api/library/sessions/{session_id}/progress/
+         *          — log the user's current page in this session.
+         */
+        get: operations["library_sessions_progress_list"];
+        put?: never;
+        /**
+         * @description GET  /api/library/sessions/{session_id}/progress/
+         *          — list all progress entries for a session, most recent first.
+         *
+         *     POST /api/library/sessions/{session_id}/progress/
+         *          — log the user's current page in this session.
+         */
+        post: operations["library_sessions_progress_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/shelf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET  /api/library/shelf/           — list the authenticated user's shelf entries.
+         *     POST /api/library/shelf/           — add a book to a shelf.
+         *
+         *     Filter by shelf type: GET /api/library/shelf/?shelf=currently_reading
+         */
+        get: operations["library_shelf_list"];
+        put?: never;
+        /**
+         * @description GET  /api/library/shelf/           — list the authenticated user's shelf entries.
+         *     POST /api/library/shelf/           — add a book to a shelf.
+         *
+         *     Filter by shelf type: GET /api/library/shelf/?shelf=currently_reading
+         */
+        post: operations["library_shelf_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/shelf/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET    /api/library/shelf/{id}/    — retrieve a shelf entry.
+         *     PATCH  /api/library/shelf/{id}/    — update (e.g. move to a different shelf).
+         *     DELETE /api/library/shelf/{id}/    — remove a book from the shelf.
+         */
+        get: operations["library_shelf_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description GET    /api/library/shelf/{id}/    — retrieve a shelf entry.
+         *     PATCH  /api/library/shelf/{id}/    — update (e.g. move to a different shelf).
+         *     DELETE /api/library/shelf/{id}/    — remove a book from the shelf.
+         */
+        delete: operations["library_shelf_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description GET    /api/library/shelf/{id}/    — retrieve a shelf entry.
+         *     PATCH  /api/library/shelf/{id}/    — update (e.g. move to a different shelf).
+         *     DELETE /api/library/shelf/{id}/    — remove a book from the shelf.
+         */
+        patch: operations["library_shelf_partial_update"];
+        trace?: never;
+    };
+    "/api/library/shelf/by-isbn/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description POST /api/library/shelf/by-isbn/
+         *
+         *     Body: { isbn: str, shelf: str }
+         *
+         *     Looks up the book by ISBN (importing from Open Library if needed) and
+         *     adds it to the authenticated user's shelf.  If the book is already on
+         *     the user's shelf, it is moved to the requested shelf.
+         *
+         *     Response: { shelf_entry: {...}, imported: bool }
+         */
+        post: operations["library_shelf_by_isbn_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AddByISBNRequest: {
+            /** @description ISBN-10 or ISBN-13. */
+            isbn: string;
+            shelf: components["schemas"]["ShelfEnum"];
+        };
+        AddByISBNResponse: {
+            shelf_entry: components["schemas"]["ShelfEntry"];
+            /** @description True if the book was newly imported from Open Library. */
+            imported: boolean;
+        };
+        AppleAuth: {
+            identity_token: string;
+            /** @default  */
+            first_name: string;
+            /** @default  */
+            last_name: string;
+        };
+        /** @description Response body returned by login, register, and OAuth endpoints. */
+        AuthTokenResponse: {
+            user: components["schemas"]["User"];
+            access: string;
+            refresh: string;
+        };
+        /** @description Lightweight read-only book representation for embedding in other serializers. */
+        BookBrief: {
+            readonly id: number;
+            title: string;
+            readonly author_names: string[];
+            isbn_13?: string;
+            /** Format: uri */
+            cover_image_url?: string;
+            /** Format: int64 */
+            page_count?: number | null;
+        };
         ChildProfile: {
             readonly id: number;
             name: string;
@@ -259,6 +488,14 @@ export interface components {
             /** Format: date */
             date_of_birth?: string | null;
         };
+        GoogleAuth: {
+            id_token: string;
+        };
+        Login: {
+            /** Format: email */
+            email: string;
+            password: string;
+        };
         PatchedChildProfile: {
             readonly id?: number;
             name?: string;
@@ -271,6 +508,127 @@ export interface components {
             readonly created_at?: string;
             /** Format: date-time */
             readonly updated_at?: string;
+        };
+        PatchedReadingSession: {
+            readonly id?: number;
+            readonly book?: components["schemas"]["BookBrief"];
+            /** @description ID of the Book being read. */
+            book_id?: number;
+            /** Format: date-time */
+            readonly started_at?: string;
+            /** Format: date-time */
+            finished_at?: string | null;
+            notes?: string;
+            /** @description The most recently recorded page number, or null. */
+            readonly current_page?: number | null;
+            /**
+             * Format: double
+             * @description Percentage of the book read (0–100), or null if unknown.
+             */
+            readonly percent_complete?: number | null;
+        };
+        PatchedShelfEntry: {
+            readonly id?: number;
+            readonly book?: components["schemas"]["BookBrief"];
+            /** @description ID of the Book to place on this shelf. */
+            book_id?: number;
+            shelf?: components["schemas"]["ShelfEnum"];
+            /** Format: date-time */
+            readonly added_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+        };
+        ReadingProgress: {
+            readonly id: number;
+            /**
+             * Format: int64
+             * @description The page the reader is currently on.
+             */
+            page: number;
+            /** Format: date-time */
+            readonly recorded_at: string;
+            notes?: string;
+        };
+        ReadingSession: {
+            readonly id: number;
+            readonly book: components["schemas"]["BookBrief"];
+            /** @description ID of the Book being read. */
+            book_id: number;
+            /** Format: date-time */
+            readonly started_at: string;
+            /** Format: date-time */
+            finished_at?: string | null;
+            notes?: string;
+            /** @description The most recently recorded page number, or null. */
+            readonly current_page: number | null;
+            /**
+             * Format: double
+             * @description Percentage of the book read (0–100), or null if unknown.
+             */
+            readonly percent_complete: number | null;
+        };
+        Register: {
+            /**
+             * Email address
+             * Format: email
+             */
+            email?: string;
+            /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
+            username: string;
+            first_name?: string;
+            last_name?: string;
+            password: string;
+            /** Confirm password */
+            password2: string;
+            /** Format: date */
+            date_of_birth?: string | null;
+        };
+        /**
+         * @description * `parent` - Parent
+         *     * `child` - Child
+         * @enum {string}
+         */
+        RoleEnum: "parent" | "child";
+        ShelfEntry: {
+            readonly id: number;
+            readonly book: components["schemas"]["BookBrief"];
+            /** @description ID of the Book to place on this shelf. */
+            book_id: number;
+            shelf: components["schemas"]["ShelfEnum"];
+            /** Format: date-time */
+            readonly added_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `currently_reading` - Currently Reading
+         *     * `want_to_read` - Want to Read
+         *     * `read` - Read
+         *     * `did_not_finish` - Did Not Finish
+         * @enum {string}
+         */
+        ShelfEnum: "currently_reading" | "want_to_read" | "read" | "did_not_finish";
+        /** @description Response body returned by the token-refresh endpoint. */
+        TokenRefreshResponse: {
+            access: string;
+            refresh?: string;
+        };
+        User: {
+            readonly id: number;
+            /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
+            username: string;
+            /**
+             * Email address
+             * Format: email
+             */
+            email?: string;
+            first_name?: string;
+            last_name?: string;
+            role?: components["schemas"]["RoleEnum"];
+            /** Format: date */
+            date_of_birth?: string | null;
+            /** Format: uri */
+            avatar_url?: string;
         };
     };
     responses: never;
@@ -306,14 +664,21 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppleAuth"];
+                "application/x-www-form-urlencoded": components["schemas"]["AppleAuth"];
+                "multipart/form-data": components["schemas"]["AppleAuth"];
+            };
+        };
         responses: {
-            /** @description No response body */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
             };
         };
     };
@@ -507,14 +872,21 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleAuth"];
+                "application/x-www-form-urlencoded": components["schemas"]["GoogleAuth"];
+                "multipart/form-data": components["schemas"]["GoogleAuth"];
+            };
+        };
         responses: {
-            /** @description No response body */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
             };
         };
     };
@@ -525,14 +897,21 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Login"];
+                "application/x-www-form-urlencoded": components["schemas"]["Login"];
+                "multipart/form-data": components["schemas"]["Login"];
+            };
+        };
         responses: {
-            /** @description No response body */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
             };
         };
     };
@@ -563,12 +942,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description No response body */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
             };
         };
     };
@@ -579,14 +959,21 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Register"];
+                "application/x-www-form-urlencoded": components["schemas"]["Register"];
+                "multipart/form-data": components["schemas"]["Register"];
+            };
+        };
         responses: {
-            /** @description No response body */
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
             };
         };
     };
@@ -597,14 +984,346 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRefreshResponse"];
+                "application/x-www-form-urlencoded": components["schemas"]["TokenRefreshResponse"];
+                "multipart/form-data": components["schemas"]["TokenRefreshResponse"];
+            };
+        };
         responses: {
-            /** @description No response body */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
+                content: {
+                    "application/json": components["schemas"]["TokenRefreshResponse"];
+                };
+            };
+        };
+    };
+    library_progress_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content?: never;
+            };
+        };
+    };
+    library_sessions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingSession"][];
+                };
+            };
+        };
+    };
+    library_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadingSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReadingSession"];
+                "multipart/form-data": components["schemas"]["ReadingSession"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingSession"];
+                };
+            };
+        };
+    };
+    library_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingSession"];
+                };
+            };
+        };
+    };
+    library_sessions_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    library_sessions_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedReadingSession"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedReadingSession"];
+                "multipart/form-data": components["schemas"]["PatchedReadingSession"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingSession"];
+                };
+            };
+        };
+    };
+    library_sessions_progress_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_pk: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingProgress"][];
+                };
+            };
+        };
+    };
+    library_sessions_progress_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_pk: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadingProgress"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReadingProgress"];
+                "multipart/form-data": components["schemas"]["ReadingProgress"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingProgress"];
+                };
+            };
+        };
+    };
+    library_shelf_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfEntry"][];
+                };
+            };
+        };
+    };
+    library_shelf_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShelfEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["ShelfEntry"];
+                "multipart/form-data": components["schemas"]["ShelfEntry"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfEntry"];
+                };
+            };
+        };
+    };
+    library_shelf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfEntry"];
+                };
+            };
+        };
+    };
+    library_shelf_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    library_shelf_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedShelfEntry"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedShelfEntry"];
+                "multipart/form-data": components["schemas"]["PatchedShelfEntry"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfEntry"];
+                };
+            };
+        };
+    };
+    library_shelf_by_isbn_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddByISBNRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AddByISBNRequest"];
+                "multipart/form-data": components["schemas"]["AddByISBNRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddByISBNResponse"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddByISBNResponse"];
+                };
             };
         };
     };

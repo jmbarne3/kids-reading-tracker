@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.response import Response
@@ -8,6 +9,8 @@ from catalog.services import get_or_import_book
 
 from .models import ReadingProgress, ReadingSession, ShelfEntry
 from .serializers import (
+    AddByISBNRequestSerializer,
+    AddByISBNResponseSerializer,
     ReadingProgressSerializer,
     ReadingSessionSerializer,
     ShelfEntrySerializer,
@@ -169,6 +172,10 @@ class ReadingProgressDetailView(generics.DestroyAPIView):
 # Add book by ISBN
 # ---------------------------------------------------------------------------
 
+@extend_schema(
+    request=AddByISBNRequestSerializer,
+    responses={200: AddByISBNResponseSerializer, 201: AddByISBNResponseSerializer},
+)
 class AddBookByISBNView(APIView):
     """
     POST /api/library/shelf/by-isbn/
