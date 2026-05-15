@@ -42,7 +42,7 @@ interface Props {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const DEFAULT_API_BASE = 'http://localhost:8000';
+const DEFAULT_API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 async function lookupIsbn(isbn: string, apiBaseUrl: string): Promise<BookResult> {
   const url = `${apiBaseUrl}/api/catalog/books/lookup/?isbn=${encodeURIComponent(isbn)}`;

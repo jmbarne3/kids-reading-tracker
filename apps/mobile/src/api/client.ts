@@ -2,11 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Base URL of the Django API.
- * - iOS Simulator:  http://localhost:8000  ✓
- * - Android Emulator: change to http://10.0.2.2:8000
- * - Physical device:  use the machine's LAN IP, e.g. http://192.168.1.x:8000
+ * Configured via the EXPO_PUBLIC_API_URL environment variable.
+ * - iOS Simulator:      EXPO_PUBLIC_API_URL=http://localhost:8000
+ * - Android Emulator:   EXPO_PUBLIC_API_URL=http://10.0.2.2:8000
+ * - Physical device:    EXPO_PUBLIC_API_URL=http://192.168.x.x:8000
+ * Set the variable in .env (local dev) or as a build secret in CI.
  */
-export const API_BASE = 'http://localhost:8000';
+export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 const TOKEN_KEY = 'access_token';
 const REFRESH_KEY = 'refresh_token';

@@ -13,6 +13,11 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    env:
+      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      DEBUG: "False"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      CORS_ALLOWED_ORIGINS: ""
 
     steps:
       - uses: actions/checkout@v4
@@ -28,11 +33,14 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Run migrations
+        run: uv run manage.py migrate --run-syncdb
+
       - name: Run tests
         run: uv run manage.py test
 
-  web-tests:
-    name: Web Tests (Vitest)
+  web:
+    name: Web — test & build
     runs-on: ubuntu-latest
 
     steps:
@@ -50,8 +58,19 @@ jobs:
       - name: Run tests
         run: npm test --workspace=apps/web
 
-  admin-tests:
-    name: Admin Tests (Vitest)
+      - name: Build
+        env:
+          VITE_API_URL: ${{ vars.WEB_API_URL }}
+        run: npm run build --workspace=apps/web
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist/
+
+  admin:
+    name: Admin — test & build
     runs-on: ubuntu-latest
 
     steps:
@@ -68,3 +87,40 @@ jobs:
 
       - name: Run tests
         run: npm test --workspace=apps/admin
+
+      - name: Build
+        env:
+          VITE_API_URL: ${{ vars.ADMIN_API_URL }}
+        run: npm run build --workspace=apps/admin
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-dist
+          path: apps/admin/dist/
+
+  mobile:
+    name: Mobile — type-check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Type-check
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.MOBILE_API_URL }}
+        run: npx tsc --noEmit
+
