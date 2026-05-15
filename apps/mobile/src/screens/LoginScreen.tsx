@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen() {
@@ -32,10 +33,11 @@ export default function LoginScreen() {
   const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <View style={styles.card}>
         <Text style={styles.logo}>📚</Text>
         <Text style={styles.title}>Reading Tracker</Text>
@@ -73,14 +75,18 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#f0f4f8',
+  },
+  container: {
+    flex: 1,
     justifyContent: 'center',
     padding: 24,
   },

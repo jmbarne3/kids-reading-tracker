@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import LibraryScreen from './src/screens/LibraryScreen';
@@ -60,9 +61,11 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
